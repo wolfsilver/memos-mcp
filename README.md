@@ -2,7 +2,7 @@
 
 > **[中文文档](README_zh.md)**
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for [Memos](https://github.com/usememos/memos) — the open-source, self-hosted note-taking service. It communicates with Memos via the official gRPC/Connect API and exposes the MCP endpoint over **HTTP** (Streamable HTTP transport).
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for [Memos](https://github.com/usememos/memos) — the open-source, self-hosted note-taking service. It communicates with Memos via the official HTTP REST API (v1) and exposes the MCP endpoint over **HTTP** (Streamable HTTP transport).
 
 ## Features
 

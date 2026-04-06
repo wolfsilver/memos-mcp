@@ -2,7 +2,7 @@
 
 > **[English Documentation](README.md)**
 
-基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的 [Memos](https://github.com/usememos/memos) 服务端，通过官方 gRPC/Connect API 与 Memos 通信，并以 **HTTP**（Streamable HTTP 传输）方式对外暴露 MCP 接口。
+基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的 [Memos](https://github.com/usememos/memos) 服务端，通过官方 HTTP REST API (v1) 与 Memos 通信，并以 **HTTP**（Streamable HTTP 传输）方式对外暴露 MCP 接口。
 
 ## 功能特性
 
