@@ -32,6 +32,16 @@
 
 ## 安装
 
+### Docker（推荐）
+
+```bash
+docker run -d \
+  -e MEMOS_SERVER_URL=http://your-memos-instance:5230 \
+  -e MEMOS_AUTH_TOKEN=your_access_token_here \
+  -p 8080:8080 \
+  ghcr.io/wolfsilver/memos-mcp:latest
+```
+
 ### 从源码构建
 
 ```bash
@@ -57,11 +67,7 @@ go install github.com/wolfsilver/memos-mcp@latest
   "mcpServers": {
     "memos": {
       "type": "streamable-http",
-      "url": "http://localhost:8080/mcp",
-      "env": {
-        "MEMOS_SERVER_URL": "http://localhost:5230",
-        "MEMOS_AUTH_TOKEN": "your_access_token_here"
-      }
+      "url": "http://localhost:8080/mcp"
     }
   }
 }

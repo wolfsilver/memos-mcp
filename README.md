@@ -32,6 +32,16 @@ The server is configured via environment variables:
 
 ## Installation
 
+### Docker (recommended)
+
+```bash
+docker run -d \
+  -e MEMOS_SERVER_URL=http://your-memos-instance:5230 \
+  -e MEMOS_AUTH_TOKEN=your_access_token_here \
+  -p 8080:8080 \
+  ghcr.io/wolfsilver/memos-mcp:latest
+```
+
 ### Build from source
 
 ```bash
@@ -57,11 +67,7 @@ Add the server to your `claude_desktop_config.json`:
   "mcpServers": {
     "memos": {
       "type": "streamable-http",
-      "url": "http://localhost:8080/mcp",
-      "env": {
-        "MEMOS_SERVER_URL": "http://localhost:5230",
-        "MEMOS_AUTH_TOKEN": "your_access_token_here"
-      }
+      "url": "http://localhost:8080/mcp"
     }
   }
 }
