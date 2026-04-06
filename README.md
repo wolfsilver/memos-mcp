@@ -2,7 +2,7 @@
 
 > **[中文文档](README_zh.md)**
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for [Memos](https://github.com/usememos/memos) — the open-source, self-hosted note-taking service. It communicates with Memos via the official HTTP REST API (v1).
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for [Memos](https://github.com/usememos/memos) — the open-source, self-hosted note-taking service. It communicates with Memos via the official gRPC/Connect API and exposes the MCP endpoint over **HTTP** (Streamable HTTP transport).
 
 ## Features
 
@@ -28,6 +28,7 @@ The server is configured via environment variables:
 |----------|----------|-------------|
 | `MEMOS_SERVER_URL` | **Yes** | Base URL of your Memos instance, e.g. `http://localhost:5230` |
 | `MEMOS_AUTH_TOKEN` | No | API access token for authentication. Generate one in **Memos → Settings → Access Tokens**. |
+| `PORT` | No | Port the MCP HTTP server listens on (default: `8080`). |
 
 ## Installation
 
@@ -55,7 +56,8 @@ Add the server to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "memos": {
-      "command": "/path/to/memos-mcp",
+      "type": "streamable-http",
+      "url": "http://localhost:8080/mcp",
       "env": {
         "MEMOS_SERVER_URL": "http://localhost:5230",
         "MEMOS_AUTH_TOKEN": "your_access_token_here"
@@ -67,12 +69,14 @@ Add the server to your `claude_desktop_config.json`:
 
 ### With other MCP clients
 
-Run the server binary directly. It communicates over **stdio** using the MCP protocol:
+Run the server binary directly. It listens on HTTP (default port `8080`) and exposes the MCP endpoint at `/mcp`:
 
 ```bash
 export MEMOS_SERVER_URL=http://localhost:5230
 export MEMOS_AUTH_TOKEN=your_access_token_here
+export PORT=8080          # optional, defaults to 8080
 ./memos-mcp
+# MCP endpoint: http://localhost:8080/mcp
 ```
 
 ## Tool Reference

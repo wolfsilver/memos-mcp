@@ -2,7 +2,7 @@
 
 > **[English Documentation](README.md)**
 
-基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的 [Memos](https://github.com/usememos/memos) 服务端，通过官方 HTTP REST API (v1) 与 Memos 通信。
+基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的 [Memos](https://github.com/usememos/memos) 服务端，通过官方 gRPC/Connect API 与 Memos 通信，并以 **HTTP**（Streamable HTTP 传输）方式对外暴露 MCP 接口。
 
 ## 功能特性
 
@@ -28,6 +28,7 @@
 |------|----------|------|
 | `MEMOS_SERVER_URL` | **必填** | Memos 实例的基础 URL，例如 `http://localhost:5230` |
 | `MEMOS_AUTH_TOKEN` | 选填 | API 访问令牌，可在 **Memos → 设置 → 访问令牌** 中生成 |
+| `PORT` | 选填 | MCP HTTP 服务监听端口（默认 `8080`）。 |
 
 ## 安装
 
@@ -55,7 +56,8 @@ go install github.com/wolfsilver/memos-mcp@latest
 {
   "mcpServers": {
     "memos": {
-      "command": "/path/to/memos-mcp",
+      "type": "streamable-http",
+      "url": "http://localhost:8080/mcp",
       "env": {
         "MEMOS_SERVER_URL": "http://localhost:5230",
         "MEMOS_AUTH_TOKEN": "your_access_token_here"
@@ -67,12 +69,14 @@ go install github.com/wolfsilver/memos-mcp@latest
 
 ### 配合其他 MCP 客户端
 
-直接运行可执行文件，服务端通过 **标准输入/输出（stdio）** 与 MCP 协议通信：
+直接运行可执行文件，服务端默认监听 `8080` 端口，MCP 接口路径为 `/mcp`：
 
 ```bash
 export MEMOS_SERVER_URL=http://localhost:5230
 export MEMOS_AUTH_TOKEN=your_access_token_here
+export PORT=8080          # 可选，默认 8080
 ./memos-mcp
+# MCP 接口地址：http://localhost:8080/mcp
 ```
 
 ## 工具参考
