@@ -1,0 +1,7 @@
+# Build output
+/memos-mcp
+/memos-mcp.exe
+
+# Go workspace file
+go.work
+go.work.sum
