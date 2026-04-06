@@ -57,7 +57,22 @@ type UpdateMemoRequest struct {
 	Content    string `json:"content,omitempty"`
 	Visibility string `json:"visibility,omitempty"`
 	Pinned     *bool  `json:"pinned,omitempty"`
+	State      string `json:"state,omitempty"`
 }
+
+// contextKey is an unexported type for context keys in this package.
+type contextKey int
+
+const (
+	// authTokenKey is the context key for a per-request auth token.
+	authTokenKey contextKey = iota
+)
+
+// Memo state constants used with UpdateMemo.
+const (
+	MemoStateNormal   = "NORMAL"
+	MemoStateArchived = "ARCHIVED"
+)
 
 // CreateCommentRequest is the body for creating a comment on a memo.
 type CreateCommentRequest struct {
@@ -88,8 +103,14 @@ func (c *MemosClient) doRequest(ctx context.Context, method, path string, body a
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if c.config.AuthToken != "" {
-		req.Header.Set("Authorization", "Bearer "+c.config.AuthToken)
+	// Per-request token (from MCP client Authorization header) takes precedence
+	// over the server-level token configured via MEMOS_AUTH_TOKEN.
+	token := c.config.AuthToken
+	if t, ok := ctx.Value(authTokenKey).(string); ok && t != "" {
+		token = t
+	}
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -399,7 +420,37 @@ func main() {
 		return mcp.NewToolResultText(fmt.Sprintf("Comment added successfully.\n\n%s", memoToText(*comment))), nil
 	})
 
-	httpServer := server.NewStreamableHTTPServer(s, server.WithStateLess(true))
+	// ── archive_memo ──────────────────────────────────────────────────────────
+	s.AddTool(mcp.NewTool("archive_memo",
+		mcp.WithDescription("Archive a memo so it no longer appears in the default view."),
+		mcp.WithString("name",
+			mcp.Required(),
+			mcp.Description("Resource name of the memo, e.g. \"memos/abc123\"")),
+	), func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		name := req.GetString("name", "")
+		if !strings.HasPrefix(name, "memos/") {
+			name = "memos/" + name
+		}
+		archiveReq := UpdateMemoRequest{State: MemoStateArchived}
+		memo, err := client.UpdateMemo(ctx, name, archiveReq, []string{"state"})
+		if err != nil {
+			return mcp.NewToolResultError(fmt.Sprintf("archive memo failed: %s", err)), nil
+		}
+		return mcp.NewToolResultText(fmt.Sprintf("Memo archived successfully.\n\n%s", memoToText(*memo))), nil
+	})
+
+	httpServer := server.NewStreamableHTTPServer(s,
+		server.WithStateLess(true),
+		server.WithHTTPContextFunc(func(ctx context.Context, r *http.Request) context.Context {
+			if auth := r.Header.Get("Authorization"); auth != "" {
+				const prefix = "Bearer "
+				if strings.HasPrefix(auth, prefix) {
+					ctx = context.WithValue(ctx, authTokenKey, strings.TrimPrefix(auth, prefix))
+				}
+			}
+			return ctx
+		}),
+	)
 	addr := ":" + port
 	log.Printf("memos-mcp HTTP server listening on %s", addr)
 	if err := httpServer.Start(addr); err != nil {
